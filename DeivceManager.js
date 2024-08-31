@@ -13,7 +13,7 @@ module.exports = (function() {
     }
 
     function throwNoPackageError(packageName) {
-        const e = new Error(`Cannot find package ${packageName}`);
+        const e = new Error(`Cannot find package `+packageName);
         Error.captureStackTrace(e);
         e.name = "NoPackageError";
         e.stack = e.stack.split("\n").slice(1).join("\n");
@@ -30,7 +30,7 @@ module.exports = (function() {
     };
     
     DeviceManager.toString = function() {
-        return '[object DeviceManager]';
+        return 'class DeviceManager';
     };
     
     DeviceManager.isAirplaneModeOn = function() {
