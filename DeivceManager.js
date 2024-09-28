@@ -1,5 +1,5 @@
 /**
- * @version {2024.07.17} 0.0.3
+ * @version {2024.09.27} 1.0.3
  * @environment RhinoJS
  */
 "use strict";
@@ -13,7 +13,7 @@ module.exports = (function() {
     }
 
     function throwNoPackageError(packageName) {
-        const e = new Error(`Cannot find package `+packageName);
+        const e = new Error(`Cannot find package ${packageName}`);
         Error.captureStackTrace(e);
         e.name = "NoPackageError";
         e.stack = e.stack.split("\n").slice(1).join("\n");
@@ -99,7 +99,7 @@ module.exports = (function() {
         return android.provider.Settings.Global.getString(Context.getContentResolver(), "boot_count");
     };
 
-    DeviceManager.isPowerSaveMode = function() {
+    DeviceManager.isPowerSaveModeOn = function() {
         let powerManager = Context.getSystemService(android.content.Context.POWER_SERVICE);
         let powerSaveMode = powerManager.isPowerSaveMode();
         return powerSaveMode;      
@@ -269,19 +269,42 @@ module.exports = (function() {
         let Runtime = java.lang.Runtime.getRuntime();
         return Runtime.maxMemory()
     };
+    
     DeviceManager.getUsingMemory = function (){
         let Runtime = java.lang.Runtime.getRuntime();
         return Runtime.totalMemory()
-    };  
+    }; 
+    
     DeviceManager.getMemoryPercentage = function (){
         let Runtime = java.lang.Runtime.getRuntime();
         return Runtime.totalMemory() / Runtime.maxMemory() * 100
-    }
+    };
+    
     DeviceManager.setTorchMode = function (mode) {
         let modes = {"on":true,"off":false}
         if(modes[mode] == undefined) throw Error("mode must on or off")
         let cm = Api.getContext().getSystemService(android.content.Context.CAMERA_SERVICE);
         return cm.setTorchMode(cm.getCameraIdList()[0], modes[mode]);        
-    }
+    };
+    
+    DeviceManager.getUptime = function () {
+        let uptime = android.os.SystemClock.elapsedRealtime();
+        return uptime;
+    };
+    
+    DeviceManager.getScreenOffTimeout = function (){
+        let context = Api.getContext().getContentResolver();
+        let screen_off_timeout = android.provider.Settings.System.getString(context, "screen_off_timeout");
+        let seconds = java.util.concurrent.TimeUnit.MILLISECONDS.toSeconds(screen_off_timeout) % 60;
+        let minutes = java.util.concurrent.TimeUnit.MILLISECONDS.toMinutes(screen_off_timeout) % 60;
+        return  (minutes == 0?"":minutes )+ (seconds == 0 ?"":seconds);
+    };
+    
+    DeviceManager.getHourClockType = function  () {
+        let context = Api.getContext().getContentResolver();
+        return android.provider.Settings.System.getString(context, "time_12_24");
+    };
+    
     return DeviceManager;
-})();
+    
+})()
